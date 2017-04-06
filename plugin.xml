@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-firebase-sdk" version="0.0.1"
+        xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>Cordova plugin for the Firebase SDK</name>
+
+    <license>MIT</license>
+
+    <engines>
+        <engine name="cordova" version=">=3.2.0"/>
+    </engines>
+
+    <platform name="android">
+        <js-module name="Firebase" src="www/index.js">
+            <clobbers target="Firebase"/>
+        </js-module>
+
+        <source-file src="src/android/Firebase.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/AuthComponent.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/AuthCredentials.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/DatabaseComponent.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/DatabaseListener.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/MessagingComponent.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/AnalyticsComponent.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/RemoteConfigComponent.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/InstanceIdService.java" target-dir="src/org/apache/cordova/firebase"/>
+        <source-file src="src/android/MessagingService.java" target-dir="src/org/apache/cordova/firebase"/>
+
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="Firebase">
+                <param name="android-package" value="org.apache.cordova.firebase.Firebase"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+            <uses-permission android:name="android.permission.WAKE_LOCK"/>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="org.apache.cordova.firebase.MessagingService">
+                <intent-filter>
+                    <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                </intent-filter>
+            </service>
+            <service android:name="org.apache.cordova.firebase.InstanceIdService">
+                <intent-filter>
+                    <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                </intent-filter>
+            </service>
+            <receiver android:name="org.apache.cordova.firebase.NotificationReceiver"/>
+        </config-file>
+
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
+        <framework src="com.google.firebase:firebase-core:+"/>
+        <framework src="com.google.firebase:firebase-auth:+"/>
+        <framework src="com.google.firebase:firebase-database:+"/>
+        <framework src="com.google.firebase:firebase-messaging:+"/>
+        <framework src="com.google.firebase:firebase-config:+"/>
+        <framework src="com.google.firebase:firebase-crash:+"/>
+    </platform>
+
+</plugin>

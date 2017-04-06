@@ -1,0 +1,39 @@
+{
+  "name": "cordova-plugin-firebase-sdk",
+  "description": "Cordova plugin for the native Firebase SDK",
+  "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsayol/cordova-plugin-firebase-sdk.git"
+  },
+  "author": {
+    "name": "Josep Sayol",
+    "email": "josep.sayol@gmail.com",
+    "url": "https://twitter.com/jsayol"
+  },
+  "cordova": {
+    "id": "cordova-plugin-firebase-sdk",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "firebase",
+    "realtime",
+    "database",
+    "authentication",
+    "analytics",
+    "auth",
+    "push",
+    "notifications"
+  ],
+  "devDependencies": {
+    "cordova": "^6.5.0",
+    "typescript": "^2.2.2"
+  }
+}
