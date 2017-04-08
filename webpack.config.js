@@ -3,7 +3,7 @@ const {CheckerPlugin} = require('awesome-typescript-loader');
 
 module.exports = {
   entry: [
-    pathResolve(__dirname, './src/index.ts')
+    pathResolve(__dirname, './scripts/src/index.ts')
   ],
   devtool: 'source-map',
   externals: [
@@ -21,7 +21,7 @@ module.exports = {
     new CheckerPlugin()
   ],
   output: {
-    path: pathResolve(__dirname, '../www'),
+    path: pathResolve(__dirname, './www'),
     libraryTarget: 'commonjs2',
     library: 'Firebase',
     filename: 'index.js'

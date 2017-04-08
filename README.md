@@ -13,7 +13,7 @@
 * Crash Reporting
 
 ## API
-Documentation coming soon. For now you can browse the TypeScript definition files in the [www](./www) directory
+Documentation coming soon. For now you can browse the TypeScript source files in the [scripts/src](./scripts/src) directory
 to get an idea of how to do things. I've tried to keep the API as close to the JavaScript SDK as possible.
 
 To get you started, download the `google-services.json` file from the Firebase console and put it in the root

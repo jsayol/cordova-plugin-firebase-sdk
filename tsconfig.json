@@ -5,8 +5,7 @@
     "target": "es5",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "./dist",
-    "declarationDir": "../www",
+    "declarationDir": "./www",
     "preserveConstEnums": true,
     "sourceMap": true,
     "inlineSources": false,
@@ -24,7 +23,7 @@
     ]
   },
   "include": [
-    "./src/**/*.ts"
+    "./scripts/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",

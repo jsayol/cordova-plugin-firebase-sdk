@@ -1,0 +1,7 @@
+.idea
+/scripts/src
+/tsconfig.json
+/webpack.config.js
+/.gitignore
+/yarn.lock
+/src/ios

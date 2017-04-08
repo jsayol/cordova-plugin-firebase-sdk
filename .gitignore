@@ -1,8 +1,6 @@
 .DS_Store
 *.log
 .idea/
-yarn.lock
 node_modules
-/gen/
-/scripts/dist/
 /src/ios/
+/www/

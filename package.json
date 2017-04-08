@@ -12,11 +12,22 @@
     "email": "josep.sayol@gmail.com",
     "url": "https://twitter.com/jsayol"
   },
+  "scripts": {
+    "clean": "rimraf ./www",
+    "build": "npm run clean && webpack -p"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.1.2",
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.6.1",
+    "tslib": "^1.6.0",
+    "typescript": "^2.2.2",
+    "webpack": "^2.3.2"
+  },
   "cordova": {
     "id": "cordova-plugin-firebase-sdk",
     "platforms": [
-      "android",
-      "ios"
+      "android"
     ]
   },
   "keywords": [
@@ -31,9 +42,5 @@
     "auth",
     "push",
     "notifications"
-  ],
-  "devDependencies": {
-    "cordova": "^6.5.0",
-    "typescript": "^2.2.2"
-  }
+  ]
 }
