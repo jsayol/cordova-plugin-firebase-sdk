@@ -1,13 +1,13 @@
 import { ErrorCallback } from '../utils';
 import { User } from './user';
 import { AuthCredential } from './providers';
+import { App } from '../app';
 export declare class Auth {
-    private static _instance;
+    app: App;
     private _currentUser;
     private _authListenerId;
     private _authListeners;
-    constructor();
-    static getInstance(): Auth;
+    private _exec(success, error, action, args);
     readonly currentUser: User;
     applyActionCode(code: string): Promise<void>;
     checkActionCode(code: string): Promise<ActionCodeInfo>;
@@ -36,7 +36,6 @@ export interface AuthStateListener {
     errorFn?: ErrorCallback;
     completeFn?: () => any;
 }
-export declare const auth: () => Auth;
 export * from './providers';
 export * from './user';
 export * from './user-info';

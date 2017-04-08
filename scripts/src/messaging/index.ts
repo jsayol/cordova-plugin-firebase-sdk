@@ -1,73 +1,71 @@
-import { exec, SuccessCallback, ErrorCallback } from '../utils';
+import { SuccessCallback, ErrorCallback } from '../utils';
+import { App } from '../app';
 
 export class Messaging {
   private static _instance: Messaging;
 
-  constructor() {
-    // Prevent creating multiple instances
-    if (Messaging._instance) {
-      return Messaging._instance;
-    }
+  private constructor(private _app: App) {
   }
 
-  static getInstance(): Messaging {
+  static getInstance(app: App): Messaging {
     if (!this._instance) {
-      this._instance = new Messaging();
+      this._instance = new Messaging(app);
     }
-
     return this._instance;
+  }
+
+  private _exec(success: SuccessCallback, error: ErrorCallback, action: string, args?: any[]) {
+    this._app._execWithoutName(success, error, `messaging_${action}`, args);
   }
 
   getToken(): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_getToken', []);
+      this._exec(resolve, reject, 'getToken');
     });
   }
 
   onNotificationOpen(callback: SuccessCallback, error: ErrorCallback): void {
-    exec(callback, error, 'Firebase', 'messaging_onNotificationOpen', []);
+    this._exec(callback, error, 'onNotificationOpen');
   }
 
   onTokenRefresh(callback: SuccessCallback, error: ErrorCallback): void {
-    exec(callback, error, 'Firebase', 'messaging_onTokenRefresh', []);
+    this._exec(callback, error, 'onTokenRefresh');
   }
 
   grantPermission(): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_grantPermission', []);
+      this._exec(resolve, reject, 'grantPermission');
     });
   }
 
   hasPermission(): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_hasPermission', []);
+      this._exec(resolve, reject, 'hasPermission');
     });
   }
 
   setBadgeNumber(number: number): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_setBadgeNumber', [number]);
+      this._exec(resolve, reject, 'setBadgeNumber', [number]);
     });
   }
 
   getBadgeNumber(): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_getBadgeNumber', []);
+      this._exec(resolve, reject, 'getBadgeNumber');
     });
   }
 
   subscribe(topic: string): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_subscribe', [topic]);
+      this._exec(resolve, reject, 'subscribe', [topic]);
     });
   }
 
   unsubscribe(topic: string): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'messaging_unsubscribe', [topic]);
+      this._exec(resolve, reject, 'unsubscribe', [topic]);
     });
   }
 
 }
-
-export const messaging = () => Messaging.getInstance();

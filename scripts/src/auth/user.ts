@@ -1,6 +1,6 @@
 import { exec, SuccessCallback, ErrorCallback } from '../utils';
 import { InternalUser, UserInfo } from './user-info';
-import { AuthCredential } from './index';
+import { Auth, AuthCredential } from './index';
 
 export class User extends UserInfo {
   private _providerData: UserInfo[];
@@ -8,9 +8,13 @@ export class User extends UserInfo {
   /**
    * @internal
    */
-  constructor(internalUser: InternalUser) {
+  constructor(private _auth: Auth, internalUser: InternalUser) {
     super(internalUser);
     this._updateProviderData();
+  }
+
+  private _exec(success: SuccessCallback, error: ErrorCallback, action: string, args: any[]) {
+    exec(success, error, 'Firebase', `auth_user_${action}`, [this._auth.app.name, ...args]);
   }
 
   get emailVerified(): boolean {
@@ -30,13 +34,13 @@ export class User extends UserInfo {
 
   delete(): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_user_delete', [this.uid]);
+      this._exec(() => resolve(), reject, 'delete', [this.uid]);
     });
   }
 
   getToken(forceRefresh = false): Promise<string> {
     return new Promise<string>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_user_getToken', [this.uid, forceRefresh]);
+      this._exec(resolve, reject, 'getToken', [this.uid, forceRefresh]);
     });
   }
 
@@ -47,25 +51,25 @@ export class User extends UserInfo {
         this._updateProviderData();
         resolve();
       };
-      exec(callback, reject, 'Firebase', 'auth_user_reload', [this.uid]);
+      this._exec(callback, reject, 'reload', [this.uid]);
     });
   }
 
   sendEmailVerification(): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_user_sendEmailVerification', [this.uid]);
+      this._exec(() => resolve(), reject, 'sendEmailVerification', [this.uid]);
     });
   }
 
   updateEmail(newEmail: string): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_user_updateEmail', [this.uid, newEmail]);
+      this._exec(() => resolve(), reject, 'updateEmail', [this.uid, newEmail]);
     });
   }
 
   updatePassword(newPassword: string): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_user_updatePassword', [this.uid, newPassword]);
+      this._exec(() => resolve(), reject, 'updatePassword', [this.uid, newPassword]);
     });
   }
 
@@ -102,13 +106,13 @@ export class User extends UserInfo {
         resolve();
       };
 
-      exec(callback, reject, 'Firebase', 'auth_user_updateProfile', [this.uid, _profile]);
+      this._exec(callback, reject, 'updateProfile', [this.uid, _profile]);
     });
   }
 
   link(credential: AuthCredential): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_user_link', [this.uid, credential]);
+      this._exec(resolve, reject, 'link', [this.uid, credential]);
     });
   }
 
@@ -119,13 +123,13 @@ export class User extends UserInfo {
         this._updateProviderData();
         resolve();
       };
-      exec(callback, reject, 'Firebase', 'auth_user_unlink', [this.uid, providerId]);
+      this._exec(callback, reject, 'unlink', [this.uid, providerId]);
     });
   }
 
   reauthenticate(credential: AuthCredential): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_user_reauthenticate', [this.uid, credential]);
+      this._exec(resolve, reject, 'reauthenticate', [this.uid, credential]);
     });
   }
 

@@ -2,7 +2,7 @@ import { Database } from './index';
 import { Query } from './query';
 import { Path } from './utils/path';
 import { OnDisconnect } from './on-disconnect';
-import { exec, ErrorCallback, SuccessCallback } from '../utils';
+import { ErrorCallback, SuccessCallback } from '../utils';
 import { generatePushKey } from './utils/push-key';
 
 export class Reference extends Query {
@@ -34,7 +34,7 @@ export class Reference extends Query {
     }
 
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'database_set', [this._path.toString(), value]);
+      this._exec(() => resolve(), reject, 'set', [this._path.toString(), value]);
     });
   }
 
@@ -80,12 +80,12 @@ export class Reference extends Query {
     }
 
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'database_update', [this._path.toString(), value]);
+      this._exec(() => resolve(), reject, 'update', [this._path.toString(), value]);
     });
   }
 
   onDisconnect(): OnDisconnect {
-    return new OnDisconnect(this._path.toString());
+    return new OnDisconnect(this._db, this._path.toString());
   }
 
 }

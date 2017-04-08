@@ -7,6 +7,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DatabaseError;
@@ -17,13 +18,24 @@ import java.util.*;
 public class DatabaseComponent {
     private static final String TAG = "DatabaseComponent";
 
-    org.apache.cordova.firebase.Firebase mFirebase;
+    Firebase mFirebase;
+    FirebaseDatabase mFirebaseDatabase;
     private HashMap<String, DatabaseListener> listeners;
 
-    public DatabaseComponent(org.apache.cordova.firebase.Firebase plugin) {
-        Log.i(TAG, "New instance");
-        this.mFirebase = plugin;
-        this.listeners = new HashMap<String, DatabaseListener>();
+    public DatabaseComponent(final Firebase plugin, final FirebaseApp firebaseApp) {
+        Log.i(TAG, "New instance, initializing");
+        mFirebase = plugin;
+        listeners = new HashMap<String, DatabaseListener>();
+        mFirebaseDatabase = FirebaseDatabase.getInstance(firebaseApp);
+    }
+
+    public void reset() {
+        Log.i(TAG, "Resetting");
+        for (String listenerID: listeners.keySet()) {
+            DatabaseListener listener = listeners.get(listenerID);
+            listener.removeListener();
+        }
+        listeners.clear();
     }
 
     public void goOffline(final CallbackContext callbackContext) {
@@ -31,7 +43,7 @@ public class DatabaseComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Going offline");
-                    FirebaseDatabase.getInstance().goOffline();
+                    mFirebaseDatabase.goOffline();
                     callbackContext.success();
                 } catch (Exception e) {
                     Log.e(TAG, "Error going offline");
@@ -46,7 +58,7 @@ public class DatabaseComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Going online");
-                    FirebaseDatabase.getInstance().goOnline();
+                    mFirebaseDatabase.goOnline();
                     callbackContext.success();
                 } catch (Exception e) {
                     Log.e(TAG, "Error going online");
@@ -61,7 +73,7 @@ public class DatabaseComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Setting persistence enabled to " + isEnabled);
-                    FirebaseDatabase.getInstance().setPersistenceEnabled(isEnabled);
+                    mFirebaseDatabase.setPersistenceEnabled(isEnabled);
                     callbackContext.success();
                 } catch (Exception e) {
                     Log.e(TAG, "Error setting persistence enabled to " + isEnabled);
@@ -132,7 +144,7 @@ public class DatabaseComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Setting keepSynced to " + keepSynced + " on  path " + path);
-                    FirebaseDatabase.getInstance().getReference(path).keepSynced(keepSynced);
+                    mFirebaseDatabase.getReference(path).keepSynced(keepSynced);
                     callbackContext.success();
                 } catch (Exception e) {
                     Log.e(TAG, "Error setting keepSynced to " + keepSynced + " on  path " + path);
@@ -148,7 +160,7 @@ public class DatabaseComponent {
                 try {
                     Log.i(TAG, "Setting value on path " + path);
                     Object valueObject = toDatabaseObject(value);
-                    DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference dbReference = mFirebaseDatabase.getReference(path);
                     dbReference.setValue(valueObject, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(DatabaseError error, DatabaseReference ref) {
@@ -180,7 +192,7 @@ public class DatabaseComponent {
                 try {
                     Log.i(TAG, "Updating children on path " + path);
                     Map<String, Object> valueObject = (Map<String, Object>) toDatabaseObject(value);
-                    DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference dbReference = mFirebaseDatabase.getReference(path);
                     dbReference.updateChildren(valueObject, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(DatabaseError error, DatabaseReference ref) {
@@ -206,7 +218,7 @@ public class DatabaseComponent {
                 try {
                     Log.i(TAG, "Setting onDisconnect value on path " + path);
                     Object valueObject = toDatabaseObject(value);
-                    DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference dbReference = mFirebaseDatabase.getReference(path);
                     OnDisconnect onDisconnect = dbReference.onDisconnect();
                     onDisconnect.setValue(valueObject, new DatabaseReference.CompletionListener() {
                         @Override
@@ -239,7 +251,7 @@ public class DatabaseComponent {
                 try {
                     Log.i(TAG, "Setting onDisconnect update on path " + path);
                     Map<String, Object> valueObject = (Map<String, Object>) toDatabaseObject(value);
-                    DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference dbReference = mFirebaseDatabase.getReference(path);
                     OnDisconnect onDisconnect = dbReference.onDisconnect();
                     onDisconnect.updateChildren(valueObject, new DatabaseReference.CompletionListener() {
                         @Override
@@ -265,7 +277,7 @@ public class DatabaseComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Cancelling onDisconnect on path " + path);
-                    DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference dbReference = mFirebaseDatabase.getReference(path);
                     OnDisconnect onDisconnect = dbReference.onDisconnect();
                     onDisconnect.cancel(new DatabaseReference.CompletionListener() {
                         @Override

@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -29,27 +30,20 @@ public class AuthComponent {
     private static final String TAG = "FirebaseAuth";
 
     private Firebase mFirebase;
-    private FirebaseAuth mAuth = null;
+    private FirebaseAuth mFirebaseAuth = null;
     private FirebaseAuth.AuthStateListener mAuthListener = null;
     private FirebaseUser mFirebaseUser = null;
     private CallbackContext authStateCallbackContext = null;
-    private boolean authStateKnown = false;
 
-    public AuthComponent(Firebase plugin) {
-        Log.i(TAG, "New instance");
+    public AuthComponent(final Firebase plugin, final FirebaseApp firebaseApp) {
+        Log.i(TAG, "New instance, initializing");
         mFirebase = plugin;
-    }
-
-    public void initialize() {
-        Log.i(TAG, "Initializing");
-
-        mAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance(firebaseApp);
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(FirebaseAuth firebaseAuth) {
                 try {
                     mFirebaseUser = firebaseAuth.getCurrentUser();
-                    authStateKnown = true;
 
                     if (mFirebaseUser != null) {
                         // User is signed in
@@ -69,13 +63,13 @@ public class AuthComponent {
         };
 
         Log.i(TAG, "Attaching auth state listener");
-        mAuth.addAuthStateListener(mAuthListener);
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     public void reset() {
-        if ((mAuth != null) && (mAuthListener != null)) {
-            Log.i(TAG, "Removing auth state listener");
-            mAuth.removeAuthStateListener(mAuthListener);
+        Log.i(TAG, "Resetting");
+        if ((mFirebaseAuth != null) && (mAuthListener != null)) {
+            mFirebaseAuth.removeAuthStateListener(mAuthListener);
         }
     }
 
@@ -92,7 +86,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Signing out");
-                    mAuth.signOut();
+                    mFirebaseAuth.signOut();
                     callbackContext.success();
                 } catch (Exception e) {
                     Log.e(TAG, "Error signing out", e);
@@ -107,7 +101,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Signing in anonymously");
-                    handleAuthTask(callbackContext, mAuth.signInAnonymously());
+                    handleAuthTask(callbackContext, mFirebaseAuth.signInAnonymously());
                 } catch (Exception e) {
                     Log.e(TAG, "Error signing in anonymously", e);
                     callbackContext.error(e.getMessage());
@@ -121,7 +115,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Signing in with custom token");
-                    handleAuthTask(callbackContext, mAuth.signInWithCustomToken(token));
+                    handleAuthTask(callbackContext, mFirebaseAuth.signInWithCustomToken(token));
                 } catch (Exception e) {
                     Log.e(TAG, "Error signing in with custom token", e);
                     callbackContext.error(e.getMessage());
@@ -135,7 +129,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Signing in with email and password");
-                    handleAuthTask(callbackContext, mAuth.signInWithEmailAndPassword(email, password));
+                    handleAuthTask(callbackContext, mFirebaseAuth.signInWithEmailAndPassword(email, password));
                 } catch (Exception e) {
                     Log.e(TAG, "Error signing in with email and password", e);
                     callbackContext.error(e.getMessage());
@@ -150,7 +144,7 @@ public class AuthComponent {
                 try {
                     Log.i(TAG, "Signing in with credential");
                     final AuthCredential authCredential = AuthCredentials.getCredential(credential);
-                    handleAuthTask(callbackContext, mAuth.signInWithCredential(authCredential));
+                    handleAuthTask(callbackContext, mFirebaseAuth.signInWithCredential(authCredential));
                 } catch (Exception e) {
                     Log.e(TAG, "Error signing in with credential", e);
                     callbackContext.error(e.getMessage());
@@ -164,7 +158,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Sending password reset email");
-                    mAuth.sendPasswordResetEmail(email)
+                    mFirebaseAuth.sendPasswordResetEmail(email)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(Task<Void> task) {
@@ -190,7 +184,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Verifying password reset code");
-                    mAuth.verifyPasswordResetCode(code)
+                    mFirebaseAuth.verifyPasswordResetCode(code)
                             .addOnCompleteListener(new OnCompleteListener<String>() {
                                 @Override
                                 public void onComplete(Task<String> task) {
@@ -216,7 +210,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Confirming password reset");
-                    mAuth.confirmPasswordReset(code, newPassword)
+                    mFirebaseAuth.confirmPasswordReset(code, newPassword)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(Task<Void> task) {
@@ -242,7 +236,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Fetching providers for email");
-                    mAuth.fetchProvidersForEmail(email)
+                    mFirebaseAuth.fetchProvidersForEmail(email)
                             .addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
                                 @Override
                                 public void onComplete(Task<ProviderQueryResult> task) {
@@ -269,7 +263,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Checking action code");
-                    mAuth.checkActionCode(code)
+                    mFirebaseAuth.checkActionCode(code)
                             .addOnCompleteListener(new OnCompleteListener<ActionCodeResult>() {
                                 @Override
                                 public void onComplete(Task<ActionCodeResult> task) {
@@ -302,7 +296,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Applying action code");
-                    mAuth.applyActionCode(code)
+                    mFirebaseAuth.applyActionCode(code)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(Task<Void> task) {
@@ -328,7 +322,7 @@ public class AuthComponent {
             public void run() {
                 try {
                     Log.i(TAG, "Creating user with email and password");
-                    mAuth.createUserWithEmailAndPassword(email, password)
+                    mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(Task<AuthResult> task) {

@@ -1,44 +1,44 @@
-import { exec, SuccessCallback, ErrorCallback } from '../utils';
+import { SuccessCallback, ErrorCallback } from '../utils';
+import { App } from '../app';
 
 export class Analytics {
   private static _instance: Analytics;
 
-  constructor() {
-    // Prevent creating multiple instances
-    if (Analytics._instance) {
-      return Analytics._instance;
-    }
+  private constructor(private _app: App) {
   }
 
-  static getInstance(): Analytics {
+  static getInstance(app: App): Analytics {
     if (!this._instance) {
-      this._instance = new Analytics();
+      this._instance = new Analytics(app);
     }
-
     return this._instance;
+  }
+
+  private _exec(success: SuccessCallback, error: ErrorCallback, action: string, args: any[]) {
+    this._app._execWithoutName(success, error, `analytics_${action}`, args);
   }
 
   logEvent(name: string, params: LogEventParams): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'analytics_logEvent', [name, params]);
+      this._exec(resolve, reject, 'logEvent', [name, params]);
     });
   }
 
   setScreenName(name: string): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'analytics_setScreenName', [name]);
+      this._exec(resolve, reject, 'setScreenName', [name]);
     });
   }
 
   setUserId(id: string): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'analytics_setUserId', [id]);
+      this._exec(resolve, reject, 'setUserId', [id]);
     });
   }
 
   setUserProperty(name: string, value: string): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'analytics_setUserProperty', [name, value]);
+      this._exec(resolve, reject, 'setUserProperty', [name, value]);
     });
   }
 
@@ -47,5 +47,3 @@ export class Analytics {
 export interface LogEventParams {
   [k: string]: any;
 }
-
-export const analytics = () => Analytics.getInstance();

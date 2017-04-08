@@ -10,10 +10,19 @@
         <engine name="cordova" version=">=3.2.0"/>
     </engines>
 
+    <js-module name="Firebase" src="www/index.js">
+        <clobbers target="firebase"/>
+    </js-module>
+
     <platform name="android">
-        <js-module name="Firebase" src="www/index.js">
-            <clobbers target="Firebase"/>
-        </js-module>
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
+        <framework src="com.google.gms:google-services:+"/>
+        <framework src="com.google.firebase:firebase-core:+"/>
+        <framework src="com.google.firebase:firebase-auth:+"/>
+        <framework src="com.google.firebase:firebase-database:+"/>
+        <framework src="com.google.firebase:firebase-messaging:+"/>
+        <framework src="com.google.firebase:firebase-config:+"/>
+        <framework src="com.google.firebase:firebase-crash:+"/>
 
         <source-file src="src/android/Firebase.java" target-dir="src/org/apache/cordova/firebase"/>
         <source-file src="src/android/AuthComponent.java" target-dir="src/org/apache/cordova/firebase"/>
@@ -27,7 +36,7 @@
         <source-file src="src/android/InstanceIdService.java" target-dir="src/org/apache/cordova/firebase"/>
         <source-file src="src/android/MessagingService.java" target-dir="src/org/apache/cordova/firebase"/>
 
-        <config-file parent="/*" target="res/xml/config.xml">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Firebase">
                 <param name="android-package" value="org.apache.cordova.firebase.Firebase"/>
                 <param name="onload" value="true"/>
@@ -54,13 +63,7 @@
             <receiver android:name="org.apache.cordova.firebase.NotificationReceiver"/>
         </config-file>
 
-        <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
-        <framework src="com.google.firebase:firebase-core:+"/>
-        <framework src="com.google.firebase:firebase-auth:+"/>
-        <framework src="com.google.firebase:firebase-database:+"/>
-        <framework src="com.google.firebase:firebase-messaging:+"/>
-        <framework src="com.google.firebase:firebase-config:+"/>
-        <framework src="com.google.firebase:firebase-crash:+"/>
+        <hook src="scripts/hooks/after_prepare.js" type="after_prepare"/>
     </platform>
 
 </plugin>

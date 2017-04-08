@@ -1,8 +1,11 @@
 import { SuccessCallback, ErrorCallback } from '../utils';
+import { App } from '../app';
 export declare class RemoteConfig {
+    private _app;
     private static _instance;
-    constructor();
-    static getInstance(): RemoteConfig;
+    private constructor(_app);
+    static getInstance(app: App): RemoteConfig;
+    private _exec(success, error, action, args?);
     activateFetched(resolve: SuccessCallback, reject: ErrorCallback): void;
     fetch(cacheExpirationSeconds?: number): Promise<any>;
     getByteArray(key: string, namespace?: string): Promise<any>;
@@ -22,4 +25,3 @@ export interface ConfigInfo {
     fetchTimeMillis: number;
     lastFetchStatus: number;
 }
-export declare const remoteConfig: () => RemoteConfig;

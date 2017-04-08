@@ -1,7 +1,9 @@
 import { UserInfo } from './user-info';
 import { AuthCredential } from './index';
 export declare class User extends UserInfo {
+    private _auth;
     private _providerData;
+    private _exec(success, error, action, args);
     readonly emailVerified: boolean;
     readonly isAnonymous: boolean;
     readonly providerData: UserInfo[];

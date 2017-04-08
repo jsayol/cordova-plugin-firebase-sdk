@@ -1,11 +1,10 @@
-import { exec, ErrorCallback, SuccessCallback } from '../utils';
+import { ErrorCallback, SuccessCallback } from '../utils';
 import { Reference } from './reference';
 import { DataSnapshot } from './data-snapshot';
 import { Path } from './utils/path';
+import { App } from '../app';
 
 export class Database {
-  private static _instance: Database;
-
   /**
    * @internal
    */
@@ -16,20 +15,18 @@ export class Database {
    */
   _listenerCounter = 1;
 
+  /**
+   * @internal
+   */
+  constructor(public app: App) {
 
-  constructor() {
-    // Prevent creating multiple instances
-    if (Database._instance) {
-      return Database._instance;
-    }
   }
 
-  static getInstance(): Database {
-    if (!this._instance) {
-      this._instance = new Database();
-    }
-
-    return this._instance;
+  /**
+   * @internal
+   */
+  _exec(success: SuccessCallback, error: ErrorCallback, action: string, args?: any[]) {
+    this.app._exec(success, error, `database_${action}`, args);
   }
 
   ref(path: string): Reference {
@@ -38,25 +35,23 @@ export class Database {
 
   goOffline(): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'database_goOffline', []);
+      this._exec(() => resolve(), reject, 'goOffline');
     });
   }
 
   goOnline(): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'database_goOnline', []);
+      this._exec(() => resolve(), reject, 'goOnline');
     });
   }
 
   setPersistenceEnabled(isEnabled: boolean): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'database_setPersistenceEnabled', [isEnabled]);
+      this._exec(() => resolve(), reject, 'setPersistenceEnabled', [isEnabled]);
     });
   }
 
 }
-
-export type EventListenerCallback = (snapshot: DataSnapshot, prevChildKey?: string) => any;
 
 /**
  * @internal
@@ -67,19 +62,12 @@ export interface Listener {
   callback: Function;
 }
 
-export interface IDatabase {
-  (): Database;
-  ServerValue: {
-    TIMESTAMP: object;
-  };
-}
+export type EventListenerCallback = (snapshot: DataSnapshot, prevChildKey?: string) => any;
 
-export const database = <IDatabase>(() => Database.getInstance());
-
-database.ServerValue = {
+export const ServerValue = {
   TIMESTAMP: {
-    '.sv': 'timestamp'
-  }
+    '.sv': 'timestamp',
+  },
 };
 
 export { Reference, DataSnapshot };

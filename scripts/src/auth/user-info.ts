@@ -1,9 +1,8 @@
-
 export class UserInfo {
   /**
    * @internal
    */
-  constructor(protected _internalUser: InternalUser) {
+  protected constructor(protected _internalUser: InternalUser) {
 
   }
 

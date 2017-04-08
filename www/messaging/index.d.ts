@@ -1,8 +1,11 @@
 import { SuccessCallback, ErrorCallback } from '../utils';
+import { App } from '../app';
 export declare class Messaging {
+    private _app;
     private static _instance;
-    constructor();
-    static getInstance(): Messaging;
+    private constructor(_app);
+    static getInstance(app: App): Messaging;
+    private _exec(success, error, action, args?);
     getToken(): Promise<any>;
     onNotificationOpen(callback: SuccessCallback, error: ErrorCallback): void;
     onTokenRefresh(callback: SuccessCallback, error: ErrorCallback): void;
@@ -13,4 +16,3 @@ export declare class Messaging {
     subscribe(topic: string): Promise<any>;
     unsubscribe(topic: string): Promise<any>;
 }
-export declare const messaging: () => Messaging;

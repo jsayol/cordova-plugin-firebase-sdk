@@ -38,11 +38,14 @@ public class MessagingComponent {
 
     public static void initialize(Bundle bundle) {
         Log.i(TAG, "Initializing");
-        if (bundle != null && bundle.size() > 1) {
+        if ((bundle != null) && (bundle.size() > 1)) {
             if (MessagingComponent.notificationStack == null) {
                 MessagingComponent.notificationStack = new ArrayList<Bundle>();
             }
-            notificationStack.add(bundle);
+            if (bundle.containsKey("google.message_id")) {
+                bundle.putBoolean("tap", true);
+                notificationStack.add(bundle);
+            }
         }
     }
 

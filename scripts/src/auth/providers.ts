@@ -32,7 +32,7 @@ export interface AuthCredential {
   secret?: string;
 }
 
-interface AuthProvider {
+export interface AuthProvider {
   providerId: string;
 }
 

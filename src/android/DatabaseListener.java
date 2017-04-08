@@ -67,7 +67,7 @@ class DatabaseListener {
 
     private void buildQuery(final String path) {
         try {
-            final DatabaseReference dbReference = FirebaseDatabase.getInstance().getReference(path);
+            final DatabaseReference dbReference = mDatabaseComponent.mFirebaseDatabase.getReference(path);
 
             if (queryOptions.has("orderByValue")) {
                 mQuery = dbReference.orderByValue();

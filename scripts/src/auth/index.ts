@@ -2,27 +2,22 @@ import { exec, SuccessCallback, ErrorCallback } from '../utils';
 import { User } from './user';
 import { InternalUser } from './user-info';
 import { AuthCredential } from './providers';
+import { App } from '../app';
 
 export class Auth {
-  private static _instance: Auth;
-
   private _currentUser: User = null;
   private _authListenerId = 0;
   private _authListeners: { [id: number]: AuthStateListener } = {};
 
-  constructor() {
-    // Prevent creating multiple instances
-    if (Auth._instance) {
-      return Auth._instance;
-    }
+  /**
+   * @internal
+   */
+  constructor(public app: App) {
+
   }
 
-  static getInstance(): Auth {
-    if (!this._instance) {
-      this._instance = new Auth();
-    }
-
-    return this._instance;
+  private _exec(success: SuccessCallback, error: ErrorCallback, action: string, args: any[]) {
+    exec(success, error, 'Firebase', `auth_${action}`, [this.app.name, ...args]);
   }
 
   get currentUser(): User {
@@ -31,7 +26,7 @@ export class Auth {
 
   applyActionCode(code: string): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_applyActionCode', [code]);
+      this._exec(() => resolve(), reject, 'applyActionCode', [code]);
     });
   }
 
@@ -40,22 +35,22 @@ export class Auth {
       const success = (email: string) => {
         resolve({data: {email}});
       };
-      exec(success, reject, 'Firebase', 'auth_checkActionCode', [code]);
+      this._exec(success, reject, 'checkActionCode', [code]);
     });
   }
 
   createUserWithEmailAndPassword(email: string, password: string): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
       const success = (internalUserInfo: InternalUser) => {
-        resolve(new User(internalUserInfo));
+        resolve(new User(this, internalUserInfo));
       };
-      exec(success, reject, 'Firebase', 'auth_createUserWithEmailAndPassword', [email, password]);
+      this._exec(success, reject, 'createUserWithEmailAndPassword', [email, password]);
     });
   }
 
   fetchProvidersForEmail(email: string): Promise<string[]> {
     return new Promise<string[]>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_fetchProvidersForEmail', [email]);
+      this._exec(resolve, reject, 'fetchProvidersForEmail', [email]);
     });
   }
 
@@ -73,57 +68,57 @@ export class Auth {
   signInAnonymously(): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
       const success = (internalUserInfo: InternalUser) => {
-        resolve(new User(internalUserInfo));
+        resolve(new User(this, internalUserInfo));
       };
-      exec(success, reject, 'Firebase', 'auth_signInAnonymously', []);
+      this._exec(success, reject, 'signInAnonymously', []);
     });
   }
 
   signInWithCredential(credential: AuthCredential): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_signInWithCredential', [credential]);
+      this._exec(resolve, reject, 'signInWithCredential', [credential]);
     });
   }
 
   signInWithCustomToken(token: string): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
       const success = (internalUserInfo: InternalUser) => {
-        resolve(new User(internalUserInfo));
+        resolve(new User(this, internalUserInfo));
       };
-      exec(success, reject, 'Firebase', 'auth_signInWithCustomToken', [token]);
+      this._exec(success, reject, 'signInWithCustomToken', [token]);
     });
   }
 
   signInWithEmailAndPassword(email: string, password: string): Promise<User> {
     return new Promise<User>((resolve: SuccessCallback, reject: ErrorCallback) => {
       const success = (internalUserInfo: InternalUser) => {
-        resolve(new User(internalUserInfo));
+        resolve(new User(this, internalUserInfo));
       };
-      exec(success, reject, 'Firebase', 'auth_signInWithEmailAndPassword', [email, password]);
+      this._exec(success, reject, 'signInWithEmailAndPassword', [email, password]);
     });
   }
 
   signOut(): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_signOut', []);
+      this._exec(() => resolve(), reject, 'signOut', []);
     });
   }
 
   sendPasswordResetEmail(email: string): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_sendPasswordResetEmail', [email]);
+      this._exec(() => resolve(), reject, 'sendPasswordResetEmail', [email]);
     });
   }
 
   verifyPasswordResetCode(code: string): Promise<string> {
     return new Promise<string>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'auth_verifyPasswordResetCode', [code]);
+      this._exec(resolve, reject, 'verifyPasswordResetCode', [code]);
     });
   }
 
   confirmPasswordReset(code: string, newPassword: string): Promise<void> {
     return new Promise<void>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(() => resolve(), reject, 'Firebase', 'auth_confirmPasswordReset', [code, newPassword]);
+      this._exec(() => resolve(), reject, 'confirmPasswordReset', [code, newPassword]);
     });
   }
 
@@ -145,7 +140,7 @@ export class Auth {
 
   private _attachAuthStateChangeListener() {
     const callback = (internalUserInfo: InternalUser) => {
-      this._currentUser = new User(internalUserInfo);
+      this._currentUser = new User(this, internalUserInfo);
 
       for (let listenerId in this._authListeners) {
         this._authListeners[listenerId].callback(this._currentUser)
@@ -158,7 +153,7 @@ export class Auth {
       }
     };
 
-    exec(callback, error, 'Firebase', 'auth_addAuthStateListener', []);
+    this._exec(callback, error, 'addAuthStateListener', []);
   }
 
   private _detachAuthStateChangeListener() {
@@ -182,8 +177,6 @@ export interface AuthStateListener {
   errorFn?: ErrorCallback;
   completeFn?: () => any;
 }
-
-export const auth = () => Auth.getInstance();
 
 export * from './providers';
 export * from './user';

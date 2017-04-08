@@ -1,25 +1,25 @@
-import { exec, SuccessCallback, ErrorCallback } from '../utils';
+import { SuccessCallback, ErrorCallback } from '../utils';
+import { App } from '../app';
 
 export class RemoteConfig {
   private static _instance: RemoteConfig;
 
-  constructor() {
-    // Prevent creating multiple instances
-    if (RemoteConfig._instance) {
-      return RemoteConfig._instance;
-    }
+  private constructor(private _app: App) {
   }
 
-  static getInstance(): RemoteConfig {
+  static getInstance(app: App): RemoteConfig {
     if (!this._instance) {
-      this._instance = new RemoteConfig();
+      this._instance = new RemoteConfig(app);
     }
-
     return this._instance;
   }
 
+  private _exec(success: SuccessCallback, error: ErrorCallback, action: string, args?: any[]) {
+    this._app._execWithoutName(success, error, `remoteConfig_${action}`, args);
+  }
+
   activateFetched(resolve: SuccessCallback, reject: ErrorCallback): void {
-    exec(resolve, reject, 'Firebase', 'remoteConfig_activateFetched', []);
+    this._exec(resolve, reject, 'activateFetched');
   }
 
   fetch(cacheExpirationSeconds?: number): Promise<any> {
@@ -30,7 +30,7 @@ export class RemoteConfig {
     }
 
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_fetch', args);
+      this._exec(resolve, reject, 'fetch', args);
     });
   }
 
@@ -42,7 +42,7 @@ export class RemoteConfig {
     }
 
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_getByteArray', args);
+      this._exec(resolve, reject, 'getByteArray', args);
     });
   }
 
@@ -54,19 +54,19 @@ export class RemoteConfig {
     }
 
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_getValue', args);
+      this._exec(resolve, reject, 'getValue', args);
     });
   }
 
   getInfo(): Promise<ConfigInfo> {
     return new Promise<ConfigInfo>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_getInfo', []);
+      this._exec(resolve, reject, 'getInfo');
     });
   }
 
   setConfigSettings(settings: ConfigSettings): Promise<any> {
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_setConfigSettings', [settings]);
+      this._exec(resolve, reject, 'setConfigSettings', [settings]);
     });
   }
 
@@ -78,7 +78,7 @@ export class RemoteConfig {
     }
 
     return new Promise<any>((resolve: SuccessCallback, reject: ErrorCallback) => {
-      exec(resolve, reject, 'Firebase', 'remoteConfig_setDefaults', args);
+      this._exec(resolve, reject, 'setDefaults', args);
     });
   }
 
@@ -97,5 +97,3 @@ export interface ConfigInfo {
   fetchTimeMillis: number;
   lastFetchStatus: number;
 }
-
-export const remoteConfig = () => RemoteConfig.getInstance();

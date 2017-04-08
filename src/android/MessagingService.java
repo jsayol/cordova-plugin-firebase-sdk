@@ -23,7 +23,7 @@ public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
 
     /**
-     * Called when message is received.
+     * Called when a message is received.
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
@@ -32,19 +32,22 @@ public class MessagingService extends FirebaseMessagingService {
         String title;
         String text;
         String id;
-        if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            text = remoteMessage.getNotification().getBody();
+        Map<String, String> data = remoteMessage.getData();
+        RemoteMessage.Notification notification = remoteMessage.getNotification();
+
+        if (notification != null) {
+            title = notification.getTitle();
+            text = notification.getBody();
             id = remoteMessage.getMessageId();
         } else {
-            title = remoteMessage.getData().get("title");
-            text = remoteMessage.getData().get("text");
-            id = remoteMessage.getData().get("id");
+            title = data.get("title");
+            text = data.get("text");
+            id = data.get("id");
         }
 
-        if(TextUtils.isEmpty(id)){
+        if (TextUtils.isEmpty(id)) {
             Random rand = new Random();
-            int  n = rand.nextInt(50) + 1;
+            int n = rand.nextInt(50) + 1;
             id = Integer.toString(n);
         }
 
@@ -53,14 +56,15 @@ public class MessagingService extends FirebaseMessagingService {
         Log.i(TAG, "Notification Message Title: " + title);
         Log.i(TAG, "Notification Message Body/Text: " + text);
 
-        // TODO: Add option to developer to configure if show notification when app on foreground
         if (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title) || (!remoteMessage.getData().isEmpty())) {
-            boolean showNotification = (Firebase.inBackground() || !MessagingComponent.hasNotificationsCallback()) && (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title));
-            sendNotification(id, title, text, remoteMessage.getData(), showNotification);
+            boolean showNotification = (Firebase.inBackground() || !MessagingComponent.hasNotificationsCallback())
+                    && (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title));
+            sendNotification(id, title, text, data, showNotification);
         }
     }
 
-    private void sendNotification(String id, String title, String messageBody, Map<String, String> data, boolean showNotification) {
+    private void sendNotification(String id, String title, String messageBody, Map<String, String> data,
+                                  boolean showNotification) {
         Bundle bundle = new Bundle();
         for (String key : data.keySet()) {
             bundle.putString(key, data.get(key));
@@ -93,6 +97,8 @@ public class MessagingService extends FirebaseMessagingService {
             notificationManager.notify(id.hashCode(), notificationBuilder.build());
         } else {
             bundle.putBoolean("tap", false);
+            bundle.putString("title", title);
+            bundle.putString("body", messageBody);
             MessagingComponent.sendNotification(bundle);
         }
     }

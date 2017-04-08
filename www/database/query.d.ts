@@ -1,3 +1,4 @@
+import { ErrorCallback, SuccessCallback } from '../utils';
 import { Database, EventListenerCallback } from './index';
 import { Path } from './utils/path';
 import { Reference } from './reference';
@@ -11,6 +12,7 @@ export declare class Query {
         [k: string]: any;
     });
     constructor(path: string | Path, db: Database);
+    protected _exec(success: SuccessCallback, error: ErrorCallback, action: string, args: any[]): void;
     readonly ref: Reference;
     startAt(value: number | string | boolean | null, key?: string): Query;
     endAt(value: number | string | boolean | null, key?: string): Query;
