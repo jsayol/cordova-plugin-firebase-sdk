@@ -1,4 +1,8 @@
 # Cordova plugin for Firebase
+
+```diff
+- THIS PLUGIN IS NOT BEING DEVELOPED ANYMORE AND SHOULD NOT BE USED.
+```
 ### Note: only Android support at the moment
 
 ## What's implemented
